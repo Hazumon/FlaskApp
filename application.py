@@ -8,7 +8,7 @@ from flask import Flask, render_template, render_template_string, url_for, redir
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import StringField, HiddenField, validators
-import boto3
+import boto3 #Establishes connection with S3
 
 import config
 import util
@@ -19,8 +19,8 @@ def get_instance_document():
         if r.status_code == 401:
             token=(
                 requests.put(
-                    "http://169.254.169.254/latest/api/token", 
-                    headers={'X-aws-ec2-metadata-token-ttl-seconds': '21600'}, 
+                    "http://169.254.169.254/latest/api/token",
+                    headers={'X-aws-ec2-metadata-token-ttl-seconds': '21600'},
                     verify=False, timeout=1
                 )
             ).text
@@ -84,7 +84,7 @@ def home():
     s3_client = boto3.client('s3')
     employees = database.list_employees()
     if employees == 0:
-        return render_template_string("""        
+        return render_template_string("""
         {% extends "main.html" %}
         {% block head %}
         Employee Directory - Home
@@ -99,7 +99,7 @@ def home():
                         'get_object',
                         Params={'Bucket': config.PHOTOS_BUCKET, 'Key': employee["object_key"]}
                     )
-            except: 
+            except:
                 pass
 
     return render_template_string("""
@@ -188,7 +188,7 @@ def save():
                     )
                 except:
                     pass
-        
+
         if form.employee_id.data:
             database.update_employee(
                 form.employee_id.data,
